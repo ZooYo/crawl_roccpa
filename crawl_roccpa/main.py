@@ -78,7 +78,6 @@ def write_data_to_excel_from_list(data_list):
 
     # Write the data rows
     for row_num, row_data in enumerate(data_list, 2):
-        print(row_data)
         cell = ws.cell(row=row_num, column=1)
         cell.value = row_num-1
         cell = ws.cell(row=row_num, column=2)

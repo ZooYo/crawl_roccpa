@@ -112,8 +112,6 @@ async def main():
     start_time = time.time()
 
     companies = await scrape_companies()
-    print(companies)
-    print(len(companies))
 
     await write_to_csv("companies.csv", companies)
 
