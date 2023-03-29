@@ -9,7 +9,7 @@ async def get(url, session):
         return await response.text()
 
 
-def get_last_page_lawyer_id():
+def get_total_page():
     url = "https://api.tba.org.tw/FindLawyer"
     data = {
         "metier": "",
@@ -17,12 +17,24 @@ def get_last_page_lawyer_id():
         "location": "",
         "isForeignLaw": "false",
         "enableExpiry": "false",
-        "page": 806
+        "page": 1
     }
     response = requests.post(url, json=data)
-    last_page_data = response.json()
-    # can use to verify total amount by (page amount -) * 10 + len(last_page_data) - 1 = result amount
-    return last_page_data['Item'][len(last_page_data)-1]['ID']
+    return response.json()['TotalPages']
+
+
+def get_last_page_data(last_page_num):
+    url = "https://api.tba.org.tw/FindLawyer"
+    data = {
+        "metier": "",
+        "name": "",
+        "location": "",
+        "isForeignLaw": "false",
+        "enableExpiry": "false",
+        "page": last_page_num
+    }
+    response = requests.post(url, json=data)
+    return response.json()
 
 
 async def get_lawyer_data_by_id(session, lawyer_id):
@@ -61,7 +73,7 @@ async def write_to_csv(filename, data):
         writer.writerows(data)
 
 
-def prepocess_lawyer_list(lawyer_list, remain_fields):
+def preprocess_lawyer_list(lawyer_list, remain_fields):
 
     lawyer_list = [elem for elem in lawyer_list if elem is not None]
     remain_fields_list = []
@@ -74,13 +86,22 @@ def prepocess_lawyer_list(lawyer_list, remain_fields):
     return remain_fields_list
 
 
+def verify_amount(last_page_data, lawyer_list):
+    return (last_page_data['TotalPages'] - 1) * 10 + len(last_page_data) == len(lawyer_list)
+
+
 async def main():
-    loop_amount = get_last_page_lawyer_id()
+    total_page = get_total_page()
+    print(total_page)
+    last_page_data = get_last_page_data(total_page)
+    print(last_page_data)
+    loop_amount = last_page_data['Item'][len(last_page_data['Item']) - 1]['ID']
     remain_fields = ['NAME', 'SEX', 'BIRTHPLACE', 'EMAIL', 'CONAME', 'COADDRESS', 'COPHONE1', 'COFAX1']
     lawyer_list = await scrape_lawyers(loop_amount)
-    lawyer_list = prepocess_lawyer_list(lawyer_list, remain_fields)
-    print(len(lawyer_list))
+    lawyer_list = preprocess_lawyer_list(lawyer_list, remain_fields)
+    print(verify_amount(last_page_data, lawyer_list))
     await write_to_csv("lawyers.csv", lawyer_list)
+
 
 
 if __name__ == "__main__":
