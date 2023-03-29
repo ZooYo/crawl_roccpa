@@ -2,7 +2,6 @@ import asyncio
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 import csv
-import time
 
 
 async def get(url, session):
@@ -109,15 +108,9 @@ def pre_process_member_data(member_list):
 
 
 async def main():
-    start_time = time.time()
 
     companies = await scrape_companies()
-
     await write_to_csv("companies.csv", companies)
-
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f"Elapsed time: {elapsed_time:.2f} seconds")
 
 
 if __name__ == "__main__":

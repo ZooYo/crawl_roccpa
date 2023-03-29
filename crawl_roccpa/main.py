@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 from openpyxl import Workbook
-import time
 
 PAGE_SIZE = 211  # 總頁數
 KEYWORD = "聯合"
@@ -115,12 +114,6 @@ def get_city_member_number(more_dict):
 
 if __name__ == '__main__':
 
-    start_time = time.time()
-
     member_data = get_crawl_data()
     write_data_to_excel_from_list(member_data)
-
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f"Elapsed time: {elapsed_time:.2f} seconds")
 
